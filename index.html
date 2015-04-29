@@ -14,8 +14,9 @@
       <input type="button" onclick="setToken();">
     </form>
     <script>
-      var setUrl = "http://api.mixpanel.com/engage";
-      var getUrl = "http://mixpanel.com/api/2.0/engage";
+      var proto = document.location.protocol;
+      var setUrl = proto + "//api.mixpanel.com/engage";
+      var getUrl = proto + "//mixpanel.com/api/2.0/engage";
       
       token = new String();
       var distinct = "SPEC_USER";
@@ -63,6 +64,7 @@
         console.log(XHR.responseText)
       }
 
+      get();
       //set('nope');
     </script>
   </body>
