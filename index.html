@@ -5,11 +5,65 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.mxpnl.com/libs/mixpanel-platform/css/reset.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.mxpnl.com/libs/mixpanel-platform/build/mixpanel-platform.v0.latest.min.css">
     <script src="https://cdn.mxpnl.com/libs/mixpanel-platform/build/mixpanel-platform.v0.latest.min.js"></script>
+    <script src="md5.js"></script>
   </head>
   <body class="mixpanel-platform-body">
     <h1>Hello, World!</h1>
+    <form id="input">
+      Project Token <input type="text" name="token">
+      <input type="button" onclick="setToken();">
+    </form>
     <script>
-      // Run queries and display results here
+      var setUrl = "http://api.mixpanel.com/engage";
+      var getUrl = "http://mixpanel.com/api/2.0/engage";
+      
+      token = new String();
+      var distinct = "SPEC_USER";
+
+      setToken = function() {
+        token = $('input:text[name=token]').val();
+        set({'token':token})
+      }
+
+      set = function(data) {
+        update = {
+          "$token": token,
+          "$distinct_id": distinct,
+          "$set": data,
+          "$ignore_time": true
+        }
+
+        payload = { 'data': btoa(JSON.stringify(update)), "ip": 0 };
+
+        XHR = new XMLHttpRequest();
+        XHR.open("POST", setUrl, true);
+        XHR.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+        XHR.send($.param(payload));
+      };
+
+      get = function() {
+
+        XHR = new XMLHttpRequest();
+
+        var params = {
+          'distinct_id': distinct,
+          'expire': Math.round(new Date() / 1000) + 60,
+          'api_key': MP.api.apiKey
+        }
+
+        var keys = Object.keys(params).sort();
+        var sig = keys.map(function(key) {
+            return "" + key + "=" + (params[key]);
+        }).join("") + this.api_secret;
+                        
+        params.secret = md5(sig);
+        console.log(params)
+
+        $.ajax(getUrl+'?'+$.param(params));
+        console.log(XHR.responseText)
+      }
+
+      //set('nope');
     </script>
   </body>
 </html>
