@@ -18,8 +18,6 @@
       var setUrl = proto + "//api.mixpanel.com/engage";
       var getUrl = proto + "//mixpanel.com/api/2.0/engage";
 
-      console.log(MP.api.apiKey, MP.api.apiSecret)
-      
       token = new String();
       var distinct = "SPEC_USER";
 
@@ -68,6 +66,9 @@
       }
 
       get();
+      debugger;
+
+      console.log(MP.api.apiKey, MP.api.apiSecret)
       //set('nope');
     </script>
   </body>
