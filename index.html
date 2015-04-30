@@ -9,23 +9,22 @@
   </head>
   <body class="mixpanel-platform-body">
     <h1>Hello, World!</h1>
-    <form id="input">
-      Project Token <input type="text" name="token">
-      <input type="button" onclick="setToken();">
-    </form>
     <script>
       var proto = document.location.protocol;
       var setUrl = proto + "//api.mixpanel.com/engage";
       var getUrl = proto + "//mixpanel.com/api/2.0/engage";
 
       token = new String();
+      spec = []
       var distinct = "SPEC_USER";
 
+      //A user must first input this project's token which will create the profile/database
       setToken = function() {
         token = $('input:text[name=token]').val();
         set({'token':token})
       }
 
+      //pass this a list of spec objects
       set = function(data) {
         update = {
           "$token": token,
@@ -38,14 +37,11 @@
 
         setXHR = new XMLHttpRequest();
         setXHR.open("POST", setUrl, true);
-        setXHR.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
         setXHR.send($.param(payload));
       };
 
+      //retrieve the user/database
       get = function() {
-
-        getXHR = new XMLHttpRequest();
-
         var params = {
           'distinct_id': distinct,
           'expire': Math.round(new Date() / 1000) + 60,
@@ -59,17 +55,40 @@
                         
         params.sig = md5(sig);
 
-        getXHR.open("GET", getUrl+'?'+$.param(params), true)
-        getXHR.send(null)
-        
-        console.log(getXHR.responseText)
+        return $.ajax(getUrl + '?' + $.param(params))
       }
 
-      get();
-      debugger;
+      //initial page creation
+      get().done(function(data){
+        spec = data.results[0] 
+        //if no user yet, display token entrance box
+        if (!spec) {
+          var inputbox = '<form id="input">' +
+                            'Project Token <input type="text" name="token">' +
+                            '<input type="button" value="Initialize" onclick="setToken();">' +
+                          '</form>'
 
-      console.log(MP.api.apiKey, MP.api.apiSecret)
-      //set('nope');
+          $('body').html(inputbox)
+        }
+        //else display Check or Edit mode
+        else {
+          token = spec.$properties.token
+          renderCheckMode();
+        }
+      });
+
+      renderCheckMode = function() {
+        //make a page to check the spec
+
+        //a table of events in the spec
+        //a table of events NOT in the spec
+        console.log('this is the hard part');
+      }
+
+      renderEditMode = function() {
+        //make a page for inputs
+      }
+
     </script>
   </body>
 </html>
