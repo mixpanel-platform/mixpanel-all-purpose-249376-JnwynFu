@@ -36,15 +36,15 @@
 
         payload = { 'data': btoa(JSON.stringify(update)), "ip": 0 };
 
-        XHR = new XMLHttpRequest();
-        XHR.open("POST", setUrl, true);
-        XHR.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
-        XHR.send($.param(payload));
+        setXHR = new XMLHttpRequest();
+        setXHR.open("POST", setUrl, true);
+        setXHR.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+        setXHR.send($.param(payload));
       };
 
       get = function() {
 
-        XHR = new XMLHttpRequest();
+        getXHR = new XMLHttpRequest();
 
         var params = {
           'distinct_id': distinct,
@@ -55,13 +55,14 @@
         var keys = Object.keys(params).sort();
         var sig = keys.map(function(key) {
             return "" + key + "=" + (params[key]);
-        }).join("") + this.api_secret;
+        }).join("") + MP.api.apiSecret;
                         
-        params.secret = md5(sig);
-        console.log(params)
+        params.sig = md5(sig);
 
-        $.ajax(getUrl+'?'+$.param(params));
-        console.log(XHR.responseText)
+        getXHR.open("GET", getUrl+'?'+$.param(params), true)
+        getXHR.send(null)
+        
+        console.log(getXHR.responseText)
       }
 
       get();
