@@ -1,0 +1,77 @@
+<!-- doctype html -->
+<html>
+  <head>
+    <script src="http://cdn.ractivejs.org/latest/ractive.min.js"></script>
+  </head>
+  <body>
+    <div id="container"></div>
+
+    <script type="text/ractive" id="template">
+
+      <fieldset>
+        {{#each spec:num}}
+        <label><input type='radio' name="{{selecteduser}}" value="{{user}}">{{user}}</label><br>
+        {{/each}}
+      </fieldset>
+      <p>The selected users spec is {{selecteduser}}.</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Events</th>
+            <th>Properties</th>
+          </tr>
+        </thead>
+
+      {{#each selected.events}}
+        <tr>
+          <td>
+            {{.name}}
+          </td>
+          <td>
+          {{#each .properties}}
+            <div>{{.}}</div>
+          {{/each}}  
+          </td>
+        </tr>
+      {{/each}}
+      </table>
+    </script>
+
+    <script>
+      var spec = [
+      {
+        "events":
+          [
+            {
+              "name":"Landing",
+              "properties":["browser","flavor"]
+            },
+            {
+              "name":"Login",
+              "properties":["auth","region"]
+            }
+          ],
+        "timestamp":"2015-04-29T20:26:20",
+        "user":"steve"
+      },
+      {
+        "events":
+          [
+            {
+              "name":"Not Landing",
+              "properties":["bowser","mario"]
+            }
+          ],
+        "timestamp":"2015-04-29T20:26:20",
+        "user":"joe"
+      }]; 
+      var colors = ["red", "green", "blue"]
+      var ractive = new Ractive({
+        el: "#container",
+        template: "#template",
+        data: { colors: colors, spec: spec, selected: spec[0] }
+      })
+    </script>
+  </body>
+</html>

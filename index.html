@@ -6,21 +6,87 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.mxpnl.com/libs/mixpanel-platform/build/mixpanel-platform.v0.latest.min.css">
     <script src="https://cdn.mxpnl.com/libs/mixpanel-platform/build/mixpanel-platform.v0.latest.min.js"></script>
     <script src="md5.js"></script>
+    <script src='http://cdn.ractivejs.org/latest/ractive.min.js'></script>
   </head>
   <body class="mixpanel-platform-body">
     <h1>Hello, World!</h1>
+    <section id="spec"></section>
+
+    <!-- templates -->
+    <script id="eventObject" type="text/ractive">
+      <table>
+        <tr>
+          <th>Event</th>
+          <th>Properties</th>
+        </tr>
+        {{#spec.events}}
+        <tr>
+          <td>{{name}}</td>
+          <td>
+            {{#properties}}
+            <div>{{property}}</div>
+          </td>
+        </tr>
+        {{/spec}}
+      </table>
+    </script>
+
+    <script id="entriesSelect" type="text/ractive">
+        
+      <fieldset>
+        {{#each events}}
+        <label><input type='radio' name='{{editor}}' value='{{name}}' checked> red</label>
+        {{/each}}
+        <p>The selected specs creator is <span>{{editor}}</span>.</p>
+      </fieldset>
+
+    </script>
+
+    <script id="initialize" type="text/ractive">
+      Project Token: <input value="{{token}}">
+    </script>
+
     <script>
+      //sample spec property returned -->
+      var spec = [
+      {
+        "events":
+          [
+            {
+              "name":"Landing",
+              "properties":["browser","flavor"]
+            },
+            {
+              "name":"Login",
+              "properties":["auth","region"]
+            }
+          ],
+        "timestamp":"2015-04-29T20:26:20",
+        "user":"steve"
+      },
+      {
+        "events":
+          [
+            {
+              "name":"Not Landing",
+              "properties":["bowser","mario"]
+            }
+          ],
+        "timestamp":"2015-04-29T20:26:20",
+        "user":"joe"
+      }];
+      //var spec = []
+      var token = new String();
+          
+      //stuff I'll need to make it all work
       var proto = document.location.protocol;
       var setUrl = proto + "//api.mixpanel.com/engage";
       var getUrl = proto + "//mixpanel.com/api/2.0/engage";
 
-      token = new String();
-      spec = []
       var distinct = "SPEC_USER";
 
       //A user must first input this project's token which will create the profile/database
-      setToken = function() {
-        token = $('input:text[name=token]').val();
+      setToken = function(token) {
         set({'token':token})
       }
 
@@ -57,37 +123,29 @@
 
         return $.ajax(getUrl + '?' + $.param(params))
       }
+      
+      var ractive = new Ractive({
+        el: '#container',
+        data: {
+          spec: spec,
+          token: token
+        },
+        template: '#main'
+      });
 
       //initial page creation
       get().done(function(data){
         spec = data.results[0] 
         //if no user yet, display token entrance box
         if (!spec) {
-          var inputbox = '<form id="input">' +
-                            'Project Token <input type="text" name="token">' +
-                            '<input type="button" value="Initialize" onclick="setToken();">' +
-                          '</form>'
+          ractive.set('spec', []);
+          ractive.set('token', 
 
-          $('body').html(inputbox)
-        }
         //else display Check or Edit mode
-        else {
-          token = spec.$properties.token
-          renderCheckMode();
-        }
       });
+    </script>
 
-      renderCheckMode = function() {
-        //make a page to check the spec
-
-        //a table of events in the spec
-        //a table of events NOT in the spec
-        console.log('this is the hard part');
-      }
-
-      renderEditMode = function() {
-        //make a page for inputs
-      }
+    <script id="main" type="text/ractive">
 
     </script>
   </body>
