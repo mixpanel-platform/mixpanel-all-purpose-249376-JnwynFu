@@ -6,26 +6,173 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.mxpnl.com/libs/mixpanel-platform/build/mixpanel-platform.v0.latest.min.css">
     <script src="https://cdn.mxpnl.com/libs/mixpanel-platform/build/mixpanel-platform.v0.latest.min.js"></script>
     <script src="md5.js"></script>
+    <script src="http://cdn.ractivejs.org/latest/ractive.min.js"></script>
   </head>
   <body class="mixpanel-platform-body">
-    <h1>Hello, World!</h1>
+    <div id="container"></div>
+
+    <!-- What am I doing here:
+
+    - build a group of radio buttons to select between spec creators (a modicum of version control)
+    - select the most recently created spec by default
+      - currently the setting of 'checked' isn't being respected, not sure why
+    - for a selected user, show their spec as a table of event name - event properties
+
+    Still to add
+    - a toggle to make all items editable as inputs
+      - see the dbl_click behavior of this example http://examples.ractivejs.org/todos
+    -->
+    <script type="text/ractive" id="template">
+
+      {{#if token == ""}}
+        <div>
+          <form on-submit="setToken(event, {token: initialToken, author: author})">
+            <table>
+              <tr>
+                <td>
+                  Enter your project token:
+                </td>
+                <td>
+                  <label><input type="text" value="{{initialToken}}" placeholder="From your Account settings page"></label>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  And your name:
+                </td>
+                <td>
+                  <label><input type="text" value="{{author}}" placeholder="Satchmo B Helpful"></label>
+                </td>
+              </tr>
+            </table>
+            <input type="submit" value="Create a Spec">
+          </form>
+        </div>
+
+      {{else}}
+        {{#if spec.length}}
+          <fieldset>
+            {{#each spec:num}}
+            <label><input type='radio' name="{{selectedUser}}" value="{{user}}" {{#if selectedUser == user}}checked{{/if}}>{{user}}</label><br>
+            {{/each}}
+          </fieldset>
+          <p>The selected user&apos;s spec is {{selectedUser}}.</p>
+        {{else}}
+          <div>Get started editing by inputting your name: <input on-change="newSpec(event, {author: author})" value={{author}}></div>
+        {{/if}}
+
+        <fieldset>
+          <label><input type='radio' name='{{edit}}' value=false checked>Check Mode</label>
+          <label><input type='radio' name='{{edit}}' value=true>Edit Mode</label>
+        <fieldset>
+        <p> currently in edit mode? {{edit}}
+
+        <table>
+          <thead>
+            <tr>
+              <th>Events</th>
+              <th>Properties</th>
+            </tr>
+          </thead>
+        {{#with selectedSpec}}
+          {{.user}}
+          {{#each events}}
+          <tr>
+            <td>
+              {{.name}}
+            </td>
+            <td>
+            {{#each .properties}}
+              <div>{{.}}</div>
+            {{/each}}
+            </td>
+          </tr>
+          {{/each}}
+        </table>
+      {{/if}}
+    </script>
+
     <script>
+    // sample spec for testing
+    //
+    // eventually this will be the return of an api export call
+      var completeSpec = [
+      {
+        "events":
+          [
+            {
+              "name":"Landing",
+              "properties":["browser","flavor"]
+            },
+            {
+              "name":"Login",
+              "properties":["auth","region"]
+            }
+          ],
+        "timestamp":"2015-04-29T20:26:20",
+        "user":"steve"
+      },
+      {
+        "events":
+          [
+            {
+              "name":"Not Landing",
+              "properties":["bowser","mario"]
+            }
+          ],
+        "timestamp":"2015-04-29T20:26:20",
+        "user":"joe"
+      }];
+
+       //make a Ractive object
+      var ractive = new Ractive({
+        el: "#container",
+        template: "#template",
+        data: { spec: [], token: "", selectedUser: "" },
+        newSpec: function( event, info ) {
+          ractive.push('spec', {
+            'user': info.author,
+            'events': [],
+            'timestamp': new Date(),
+          });
+          ractive.set( 'selectedUser', info.author );
+        },
+        setToken: function( event, info ) {
+          event.original.preventDefault();
+          set(
+            data = { 'token': info.token, 'spec': [] },
+            token = info.token
+          );
+          this.newSpec( event, info);
+          console.log('get', ractive.get('token'), ractive.get('spec'))
+          ractive.set('token', info.token);
+          initialize ( info.token, ractive.get('spec'));
+        },
+        filters: {
+          selectByUser: function ( specItem ) { return specItem.user === selectedUser }
+        },
+        computed: {
+          selectedSpec: function () {
+            return ractive.get( 'spec' ).filter( filters.selectByUser );
+          }
+        }
+      })
+
+     
       var proto = document.location.protocol;
       var setUrl = proto + "//api.mixpanel.com/engage";
       var getUrl = proto + "//mixpanel.com/api/2.0/engage";
 
-      token = new String();
-      spec = []
       var distinct = "SPEC_USER";
 
       //A user must first input this project's token which will create the profile/database
-      setToken = function() {
-        token = $('input:text[name=token]').val();
-        set({'token':token})
-      }
+      //setToken = function(projectToken) {
+      //  token = $('input:text[name=token]').val();
+      //  set({'token': projectToken})
+      //}
 
       //pass this a list of spec objects
-      set = function(data) {
+      set = function(data, token) {
         update = {
           "$token": token,
           "$distinct_id": distinct,
@@ -35,6 +182,7 @@
 
         payload = { 'data': btoa(JSON.stringify(update)), "ip": 0 };
 
+        console.log(payload)
         setXHR = new XMLHttpRequest();
         setXHR.open("POST", setUrl, true);
         setXHR.send($.param(payload));
@@ -44,7 +192,7 @@
       get = function() {
         var params = {
           'distinct_id': distinct,
-          'expire': Math.round(new Date() / 1000) + 60,
+          'expire': Math.round(new Date() / 1000) + 600,
           'api_key': MP.api.apiKey
         }
 
@@ -58,36 +206,30 @@
         return $.ajax(getUrl + '?' + $.param(params))
       }
 
+      initialize = function(token, spec) {
+        token = (typeof token !== 'undefined') ? token : "";
+        spec = (typeof spec !== 'undefined') ? spec : []
+        // initiate some spinning wheel thing saying that
+        // Your Data is Loading
+
+        // load a spec if it exists
+        get().done(function(data){
+          info = data.results[0]
+          console.log(info)
+          if (info) {
+            ractive.set('spec', info.$properties.spec);
+            ractive.set('selectedUser', info.$properties.spec[0].user);
+            //spec = completeSpec;
+            ractive.set('token', info.$properties.token);
+          } 
+        });
+      }
+ 
       //initial page creation
-      get().done(function(data){
-        spec = data.results[0] 
-        //if no user yet, display token entrance box
-        if (!spec) {
-          var inputbox = '<form id="input">' +
-                            'Project Token <input type="text" name="token">' +
-                            '<input type="button" value="Initialize" onclick="setToken();">' +
-                          '</form>'
+      MP.api.on('mpplatform.credentialsRegistered', initialize())
 
-          $('body').html(inputbox)
-        }
-        //else display Check or Edit mode
-        else {
-          token = spec.$properties.token
-          renderCheckMode();
-        }
-      });
-
-      renderCheckMode = function() {
-        //make a page to check the spec
-
-        //a table of events in the spec
-        //a table of events NOT in the spec
-        console.log('this is the hard part');
-      }
-
-      renderEditMode = function() {
-        //make a page for inputs
-      }
+      //for local testing
+      MP.api.trigger('mpplatform.credentialsRegistered');
 
     </script>
   </body>
