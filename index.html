@@ -67,29 +67,34 @@
         <fieldset>
         <p> currently in edit mode? {{edit}}
 
-        <table>
-          <thead>
-            <tr>
-              <th>Events</th>
-              <th>Properties</th>
-            </tr>
-          </thead>
-        {{#with selectedSpec}}
-          {{.user}}
-          {{#each events}}
-          <tr>
-            <td>
-              {{.name}}
-            </td>
-            <td>
-            {{#each .properties}}
-              <div>{{.}}</div>
-            {{/each}}
-            </td>
-          </tr>
-          {{/each}}
-        </table>
+        {{> selectedSpec}}
       {{/if}}
+    </script>
+
+    <script id="selectedSpec" type="text/ractive">
+      {{#with selectedSpec}}
+      <table>
+        <thead>
+          <tr>
+            <th>Events</th>
+            <th>Properties</th>
+          </tr>
+        </thead>
+        {{.user}}
+        {{#each events}}
+        <tr>
+          <td>
+            {{.name}}
+          </td>
+          <td>
+          {{#each .properties}}
+            <div>{{.}}</div>
+          {{/each}}
+          </td>
+        </tr>
+        {{/each}}
+      </table>
+      {{/with}}
     </script>
 
     <script>
@@ -149,11 +154,11 @@
           initialize ( info.token, ractive.get('spec'));
         },
         filters: {
-          selectByUser: function ( specItem ) { return specItem.user === selectedUser }
+          selectByUser: function ( specItem ) { return specItem.user === ractive.get('selectedUser') }
         },
         computed: {
           selectedSpec: function () {
-            return ractive.get( 'spec' ).filter( filters.selectByUser );
+            return ractive.get( 'spec' ).filter(ractive.filters.selectByUser)[0];
           }
         }
       })
