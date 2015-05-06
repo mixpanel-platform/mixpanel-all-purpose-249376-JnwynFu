@@ -6,7 +6,7 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.mxpnl.com/libs/mixpanel-platform/build/mixpanel-platform.v0.latest.min.css">
     <script src="https://cdn.mxpnl.com/libs/mixpanel-platform/build/mixpanel-platform.v0.latest.min.js"></script>
     <script src="md5.js"></script>
-    <script src="http://cdn.ractivejs.org/latest/ractive.min.js"></script>
+    <script src="https://cdn.ractivejs.org/latest/ractive.min.js"></script>
   </head>
   <body class="mixpanel-platform-body">
     <div id="container"></div>
@@ -300,7 +300,7 @@
       MP.api.on('mpplatform.credentialsRegistered', initialize())
 
       //for local testing
-      MP.api.trigger('mpplatform.credentialsRegistered');
+      //MP.api.trigger('mpplatform.credentialsRegistered');
 
     </script>
   </body>
