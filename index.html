@@ -33,9 +33,10 @@
                   Enter your project token:
                 </td>
                 <td>
-                  <label><input type="text" value="{{initialToken}}" placeholder="From your Account settings page"></label>
+                  <div><input type="text" value="{{initialToken}}" placeholder="From your Account settings page"></div>
                 </td>
               </tr>
+              <div><p>Hint: this project's token is 8950dac216646efa64092d982b5403ba</p></div>
               <tr>
                 <td>
                   And your name:
@@ -51,12 +52,20 @@
 
       {{else}}
         <fieldset>
-          {{#if author === ""}}<div><form id="getAuthor" on-submit="newSpec( event, inputAuthor )"><input type="text" value="{{inputAuthor}}" lazy><input type="submit"></form></div>{{/if}}
-          {{#each spec}}
-          <div><input type='radio' name="{{selectedUser}}" value="{{user}}" {{#if selectedUser == user}}checked{{/if}}>{{user}}</div>
-          {{/each}}
+          {{#if author === ""}}
+          <div>
+            <form id="getAuthor" on-submit="newSpec( event, inputAuthor )">
+              <input type="text" value="{{inputAuthor}}" lazy>
+              <input type="submit">
+            </form>
+          </div>
+          {{else}}
+            {{#each spec}}
+            <div><input type='radio' name="{{selectedUser}}" value="{{user}}" {{#if selectedUser == user}}checked{{/if}}>{{user}}</div>
+            {{/each}}
+            <p>The selected user&apos;s spec is {{selectedUser}}.</p>
+          {{/if}}
         </fieldset>
-        <p>The selected user&apos;s spec is {{selectedUser}}.</p>
 
         <fieldset>
           <label><input type="radio" name="{{edit}}" value="{{false}}">Check Mode</label>
@@ -80,10 +89,8 @@
         {{#if edit}}
         <tr>
           <td>
-            <form id="eventInput" on-submit="addNewEvent( event, newEvent )">
               <div><input type="text" value="{{newEvent.name}}" placeholder="new event name"></div>
-              <div><input type="submit" value="add to spec"></div>
-            </form>
+              <div><input type="button" on-click="addNewEvent"  value="add to spec"></div>
           </td>
           <td>
             <form id="propInput" on-submit="addNewProp( event, newProp )">
@@ -151,18 +158,23 @@
         data: { spec: [], token: "", selectedUser: "", author: "", edit: false, newEvent: { name: "", properties: [] }, newProp: "" },
         newSpec: function( event, author ) {
           event.original.preventDefault();
+          ractive.set( 'author', author );
           console.log('author', author);
-          ractive.push('spec', {
-            'user': author,
-            'events': [],
-            'timestamp': new Date(),
-          });
+          console.log('authorSpec', ractive.get('authorSpec'));
+          if (!ractive.get('authorSpec')) {
+            console.log('newSpec');
+            ractive.push('spec', {
+              'user': author,
+              'events': [],
+              'timestamp': new Date(),
+            });
+          }
           ractive.set( 'selectedUser', author );
           localStorage.setItem( 'author', author );
         },
         setToken: function( event, info ) {
           event.original.preventDefault();
-          this.set( 'spec', [ { 'user': info.author, 'timestamp': new Date(), 'events': [ ractive.get('newEvent') ] } ] );
+          this.set( 'spec', [ { 'user': info.author, 'timestamp': new Date(), 'events': [] } ] );
           set(
             data = { 'token': info.token, 'spec': ractive.get('spec') },
             token = info.token
@@ -174,9 +186,8 @@
           initialize ( info.token, ractive.get('spec'));
           ractive.set('edit', true);
         },
-        addNewEvent: function( event, eventObj ) {
-          event.original.preventDefault();
-          ractive.get('authorSpec').events.push({
+        addNewEvent: function ( eventObj ) {
+          ractive.get( 'authorSpec.events' ).push({
             'name': eventObj.name,
             'properties': eventObj.properties
           });
@@ -189,7 +200,7 @@
         },  
         filters: {
           user: function ( specItem ) { return specItem.user === ractive.get('selectedUser') },
-          author: function( specItem ) {return specItem.user === ractive.get('author') }
+          author: function( specItem ) { return specItem.user === ractive.get('author') }
         },
         computed: {
           selectedSpec: function () {
@@ -199,6 +210,12 @@
             return ractive.get( 'spec' ).filter(ractive.filters.author)[0];
           }
         }
+      })
+
+      ractive.on( 'addNewEvent', function ( event ) {
+        event.original.preventDefault();
+        console.log('this', this.get);
+        this.addNewEvent( ractive.get( 'newEvent' ) );
       })
 
       try {
@@ -217,7 +234,7 @@
       var setUrl = proto + "//api.mixpanel.com/engage";
       var getUrl = proto + "//mixpanel.com/api/2.0/engage";
 
-      var distinct = "SPEC_USER7";
+      var distinct = "SPEC_USER11";
 
       //A user must first input this project's token which will create the profile/database
       //setToken = function(projectToken) {
