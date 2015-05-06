@@ -51,8 +51,9 @@
 
       {{else}}
         <fieldset>
+          {{#if author === ""}}<div><form id="getAuthor" on-submit="newSpec( event, inputAuthor )"><input type="text" value="{{inputAuthor}}" lazy><input type="submit"></form></div>{{/if}}
           {{#each spec}}
-          <label><input type='radio' name="{{selectedUser}}" value="{{user}}" {{#if selectedUser == user}}checked{{/if}}>{{user}}</label><br>
+          <div><input type='radio' name="{{selectedUser}}" value="{{user}}" {{#if selectedUser == user}}checked{{/if}}>{{user}}</div>
           {{/each}}
         </fieldset>
         <p>The selected user&apos;s spec is {{selectedUser}}.</p>
@@ -77,23 +78,23 @@
           </tr>
         </thead>
         {{#if edit}}
-        <form id="eventInput" on-submit="addNewEvent( event, newEvent )">
-          <tr>
-            <td>
-              <div><input type="text" value="{{newEvent.name}}" placeholder="new event name"></div><br>
+        <tr>
+          <td>
+            <form id="eventInput" on-submit="addNewEvent( event, newEvent )">
+              <div><input type="text" value="{{newEvent.name}}" placeholder="new event name"></div>
               <div><input type="submit" value="add to spec"></div>
-            </td>
-            <td>
-              <form id="propInput" on-submit="addNewProp( event, newProp )">
-                <div><label><input type="text" value="{{newProp}}" placeholder="property"></label></div>
+            </form>
+          </td>
+          <td>
+            <form id="propInput" on-submit="addNewProp( event, newProp )">
+              <div><label><input type="text" value="{{newProp}}" placeholder="property"></label></div>
               {{#each newEvent.properties}}
-                <div><input type="text" value="{{.}}" placeholder="property"></div>
+              <div><input type="text" value="{{.}}" placeholder="property"></div>
               {{/each}}
-                <label><input type="submit"></label>
-              </form>
-            </td>
-          </tr>
-        </form>
+              <label><input type="submit"></label>
+            </form>
+          </td>
+        </tr>
         {{/if}}
         {{#each .events}}
         <tr>
@@ -148,16 +149,17 @@
         el: "#container",
         template: "#template",
         data: { spec: [], token: "", selectedUser: "", author: "", edit: false, newEvent: { name: "", properties: [] }, newProp: "" },
-        /*
-        newSpec: function( event, info ) {
+        newSpec: function( event, author ) {
+          event.original.preventDefault();
+          console.log('author', author);
           ractive.push('spec', {
-            'user': info.author,
+            'user': author,
             'events': [],
             'timestamp': new Date(),
           });
-          ractive.set( 'selectedUser', info.author );
+          ractive.set( 'selectedUser', author );
+          localStorage.setItem( 'author', author );
         },
-        */
         setToken: function( event, info ) {
           event.original.preventDefault();
           this.set( 'spec', [ { 'user': info.author, 'timestamp': new Date(), 'events': [ ractive.get('newEvent') ] } ] );
@@ -165,11 +167,10 @@
             data = { 'token': info.token, 'spec': ractive.get('spec') },
             token = info.token
           );
-          //this.newSpec( event, info);
+          this.newSpec( event, info.author );
           console.log('get', ractive.get('token'), ractive.get('spec'))
           ractive.set( 'token', info.token );
           ractive.set( 'selectedUser', info.author );
-          localStorage.setItem( 'author', info.author );
           initialize ( info.token, ractive.get('spec'));
           ractive.set('edit', true);
         },
@@ -238,7 +239,7 @@
         console.log('set', payload)
         setXHR = new XMLHttpRequest();
         setXHR.open("POST", setUrl, true);
-        setXHR.send($.param(payload));
+        setXHR.send($.param(payload))
       };
 
       //retrieve the user/database
