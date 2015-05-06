@@ -58,10 +58,9 @@
         <p>The selected user&apos;s spec is {{selectedUser}}.</p>
 
         <fieldset>
-          <p>{{edit}}</p>
-          <label><input type='radio' onclick="ractive.editMode( false )" value=false checked="{{!edit}}">Check Mode</label>
-          <label><input type='radio' onclick="ractive.editMode( true )" value=true checked="{{edit}}">Edit Mode</label>
-        <fieldset>
+          <label><input type="radio" name="{{edit}}" value="{{false}}">Check Mode</label>
+          <label><input type="radio" name="{{edit}}" value="{{true}}">Edit Mode</label>
+        </fieldset>
         <p> currently in edit mode? {{edit}}
 
         {{> selectedSpecTemplate}}
@@ -149,14 +148,6 @@
         el: "#container",
         template: "#template",
         data: { spec: [], token: "", selectedUser: "", author: "", edit: false, newEvent: { name: "", properties: [] }, newProp: "" },
-        editMode: function( bool ) {
-          console.log('editing', bool);
-          if (bool === true) {
-            ractive.set('edit', true);
-          } else if (bool === false) {
-            ractive.set('edit', false)
-          }
-        },
         /*
         newSpec: function( event, info ) {
           ractive.push('spec', {
@@ -180,7 +171,7 @@
           ractive.set( 'selectedUser', info.author );
           localStorage.setItem( 'author', info.author );
           initialize ( info.token, ractive.get('spec'));
-          ractive.editMode(true);
+          ractive.set('edit', true);
         },
         addNewEvent: function( event, eventObj ) {
           event.original.preventDefault();
