@@ -9,7 +9,18 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ractive/0.7.3/ractive.min.js"></script>
   </head>
 <style type="text/css">
+
+.event {
+ padding:10px;
+ border: 1px solid black;
+}
+
+.eventName, .propertyName {
+
+}
+
 #container {
+  width:680px;
 }
 
 #specTemplate {
@@ -18,6 +29,19 @@
 }
 
 #rightNav {
+  float:right;
+}
+
+#spec {
+  float:left;
+  
+}
+
+#controls {
+  float:right;
+  
+  position: relative;
+  /*bottom: 50px;*/
 }
 
 </style>
@@ -48,7 +72,7 @@
                 <div><input type="text" value="{{initialToken}}" placeholder="From your Account settings page"></div>
               </td>
             </tr>
-            <div><p>Hint: this project's token is 8950dac216646efa64092d982b5403ba</p></div>
+            <div><p>Hint: this projects token is 8950dac216646efa64092d982b5403ba</p></div>
             <tr>
               <td>
                 And your name:
@@ -122,12 +146,12 @@
     </script>
 
     <script id="newEvent" type="text/ractive">
-      <tr>
-        <td>
+      <tr class="event">
+        <td class="eventName">
             <div><input type="text" value="{{newEvent.name}}" placeholder="new event name"></div>
             <div><input type="button" on-click="addNewEvent"  value="add to spec"></div>
         </td>
-        <td>
+        <td class="propertyName">
           <div><label><input type="text" value="{{newProp}}" placeholder="property"></label></div>
           {{#each newEvent.properties}}
           <div><input type="text" value="{{.}}" placeholder="property"></div>
