@@ -10,6 +10,26 @@
   </head>
 <style type="text/css">
 
+.formTitle {
+  padding-bottom: 5px;
+  width:158px;
+}
+
+.formWrapper input {
+  margin:2px;
+  text-align: center;
+  width:100%;
+  font-size:12px;
+  color:#747d94;
+  text-align:center;
+}
+
+.formWrapper input[type="button"] {
+  width:156px;
+  font-weight: bold;
+  box-shadow:0 1px 2px 0 rgba(0,0,0,0.1);
+}
+
 h1 {
   font-size:22px;
   color:#747d94;
@@ -244,18 +264,18 @@ width:250px;
             Events
           </div>
           <input class="" type="text" value="{{newEvent.name}}" placeholder="Event name">
-          <input class="" type="button" on-click="addNewEvent"  value="add to spec">
+          <input class="" type="button" on-click="addNewEvent"  value="Add to spec">
         </div>
 
         <div class="formWrapper right">
           <div class="formTitle center">
             Properties
           </div>
-          <label><input class="" type="text" value="{{newProp}}" placeholder="property"></label>
+          <label><input class="" type="text" value="{{newProp}}" placeholder="Property"></label>
           {{#each newEvent.properties}}
-            <input class="" type="text" value="{{.}}" placeholder="property">
+            <input class="" type="text" value="{{.}}" placeholder="Property name">
           {{/each}}
-          <input class="" type="button" value="add property" on-click="addNewProp(newProp)">
+          <input class="" type="button" value="Add property" on-click="addNewProp(newProp)">
         </div>
       </div>
     </script>
