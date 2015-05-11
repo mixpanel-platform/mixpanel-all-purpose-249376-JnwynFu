@@ -5,7 +5,6 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.mxpnl.com/libs/mixpanel-platform/css/reset.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.mxpnl.com/libs/mixpanel-platform/build/mixpanel-platform.v0.latest.min.css">
     <script src="https://cdn.mxpnl.com/libs/mixpanel-platform/build/mixpanel-platform.v0.latest.min.js"></script>
-    <script src="md5.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ractive/0.7.3/ractive.min.js"></script>
   </head>
 <style type="text/css">
@@ -314,20 +313,6 @@
 
       //retrieve the user/database
       get = function() {
-        var params = {
-          'distinct_id': distinct,
-          'expire': Math.round(new Date() / 1000) + 600,
-          'api_key': MP.api.apiKey
-        }
-
-        var keys = Object.keys(params).sort();
-        var sig = keys.map(function(key) {
-            return "" + key + "=" + (params[key]);
-        }).join("") + MP.api.apiSecret;
-                        
-        params.sig = md5(sig);
-
-        //return $.ajax(getUrl + '?' + $.param(params))
         return MP.api.query('/api/2.0/engage', {'distinct_id': distinct})
       }
 
