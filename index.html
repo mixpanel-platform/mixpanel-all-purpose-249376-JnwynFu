@@ -15,8 +15,31 @@
  border: 1px solid black;
 }
 
-.eventName, .propertyName {
+.eventName {
+  float:left;
+  width:40%;
+}
 
+.propertyName {
+  float:right;
+  width:40%;
+}
+
+#newEvent {
+padding: 5px;
+border: 1px grey solid;
+}
+
+#specItems {
+padding:10px;
+margin:5px;
+width:250px;
+}
+
+.specItem {
+  display:inline-block;
+  width:100%;
+  border: 1px grey solid; 
 }
 
 #container {
@@ -120,45 +143,45 @@
     <script id="specTemplate" type="text/ractive">
       <div id="spec">
         {{#with workingSpec}}
-        <table>
-          <thead>
-            <tr>
-              <th>Events</th>
-              <th>Properties</th>
-            </tr>
-          </thead>
-          {{#if edit}}{{> newEvent}}{{/if}}
-          {{#each .events:i}}
-          <tr>
-            <td>
-              {{.name}}
-            </td>
-            <td>
-            {{#each .properties}}
-              <div>{{.}}</div>
+      
+        {{#if edit}}{{> newEvent}}{{/if}}
+
+      <div id="specItems">
+        {{#each .events:i}}
+          <div class="specItem">
+              <div class="eventName">{{.name}}</div>
+                {{#each .properties}}
+              <div class="propertyName">{{.}}</div>
             {{/each}}
-            </td>
-          </tr>
-          {{/each}}
-        </table>
+          </div>
+        {{/each}}
+        </div>
         {{/with}}
       </div>
     </script>
 
     <script id="newEvent" type="text/ractive">
-      <tr class="event">
-        <td class="eventName">
-            <div><input type="text" value="{{newEvent.name}}" placeholder="new event name"></div>
-            <div><input type="button" on-click="addNewEvent"  value="add to spec"></div>
-        </td>
-        <td class="propertyName">
-          <div><label><input type="text" value="{{newProp}}" placeholder="property"></label></div>
-          {{#each newEvent.properties}}
-          <div><input type="text" value="{{.}}" placeholder="property"></div>
-          {{/each}}
-          <input type="button" value="add property" on-click="addNewProp(newProp)">
-        </td>
-      </tr>
+      <div id="newEvent">
+        <thead>
+          <tr>
+            <th>Events</th>
+            <th>Properties</th>
+          </tr>
+        </thead>
+          <tr>
+            <td>
+                <div><input type="text" value="{{newEvent.name}}" placeholder="new event name"></div>
+                <div><input type="button" on-click="addNewEvent"  value="add to spec"></div>
+            </td>
+            <td>
+              <div><label><input type="text" value="{{newProp}}" placeholder="property"></label></div>
+              {{#each newEvent.properties}}
+              <div><input type="text" value="{{.}}" placeholder="property"></div>
+              {{/each}}
+              <input type="button" value="add property" on-click="addNewProp(newProp)">
+            </td>
+          </tr>
+      </div>
     </script>
 
     <script>
