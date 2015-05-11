@@ -61,8 +61,21 @@ span.edit {
 }
 
 #newEvent {
-padding: 5px;
-border: 1px grey solid;
+  box-shadow:0 1px 2px 0 rgba(0,0,0,0.1);
+  /*bottom: 50px;*/
+  color:#747d94;
+  border-radius:5px;
+  font-weight:bold;
+  padding:15px;
+  background-color:#f9fafb;
+  text-transform:uppercase;
+  border:1px solid #cbcfd9;
+  width:100%;
+  text-align: center;
+}
+
+#newEvent {
+
 }
 
 #specItems {
@@ -96,13 +109,14 @@ width:250px;
 }
 
 #controls {
+  box-shadow:0 1px 2px 0 rgba(0,0,0,0.1);
   float:right;
   position: relative;
   /*bottom: 50px;*/
   color:#747d94;
   border-radius:5px;
   font-weight:bold;
-  padding:10px;
+  padding:15px;
   background-color:#f9fafb;
   text-transform:uppercase;
   border:1px solid #cbcfd9;
@@ -206,25 +220,24 @@ width:250px;
 
     <script id="newEvent" type="text/ractive">
       <div id="newEvent">
-        <thead>
-          <tr>
-            <th>Events</th>
-            <th>Properties</th>
-          </tr>
-        </thead>
-          <tr>
-            <td>
-                <div><input type="text" value="{{newEvent.name}}" placeholder="new event name"></div>
-                <div><input type="button" on-click="addNewEvent"  value="add to spec"></div>
-            </td>
-            <td>
-              <div><label><input type="text" value="{{newProp}}" placeholder="property"></label></div>
-              {{#each newEvent.properties}}
-              <div><input type="text" value="{{.}}" placeholder="property"></div>
-              {{/each}}
-              <input type="button" value="add property" on-click="addNewProp(newProp)">
-            </td>
-          </tr>
+        <div class="formWrapper left">
+          <div class="formTitle">
+            Events
+          </div>
+          <input type="text" value="{{newEvent.name}}" placeholder="Event name">
+          <input type="button" on-click="addNewEvent"  value="add to spec">
+        </div>
+
+        <div class="formWrapper right">
+          <div class="formTitle">
+            Properties
+          </div>
+          <label><input type="text" value="{{newProp}}" placeholder="property"></label>
+          {{#each newEvent.properties}}
+            <input type="text" value="{{.}}" placeholder="property">
+          {{/each}}
+          <input type="button" value="add property" on-click="addNewProp(newProp)">
+        </div>
       </div>
     </script>
 
