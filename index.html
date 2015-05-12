@@ -12,11 +12,13 @@
 
 .formTitle {
   padding-bottom: 5px;
-  width:158px;
+  width:100%;
+  margin:3px;
 }
 
 .formWrapper input {
-  margin:2px;
+  height:18px;
+  margin-bottom: 5px;
   text-align: center;
   width:100%;
   font-size:12px;
@@ -26,6 +28,7 @@
 
 .formWrapper input[type="button"] {
   width:156px;
+  height:10px;
   font-weight: bold;
   box-shadow:0 1px 2px 0 rgba(0,0,0,0.1);
 }
@@ -73,13 +76,12 @@ span.edit {
 }
 
 .formWrapper {
-  width:150px;
+  width:200px;
   padding:10px;
 }
 
 .event {
   padding:10px;
-  border: 1px solid black;
 }
 
 .eventName {
@@ -88,7 +90,7 @@ span.edit {
   font-weight:800;
   text-align: center;
   float:left;
-  width:40%;
+  width:235px;
 }
 
 .propertyName {
@@ -97,7 +99,7 @@ span.edit {
   color:#747d94;
   text-align: center;
   float:right;
-  width:40%;
+  width:250px;
 }
 
 #newEvent {
@@ -106,9 +108,7 @@ span.edit {
   font-weight:bold;
   padding:15px;
   text-transform:uppercase;
-  width:100%;
   text-align: center;
-  width:360px;
 }
 
 #specItems {
@@ -119,12 +119,11 @@ span.edit {
 .specItem {
   display:inline-block;
   width:100%;
-  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.1);
-  background-color:#f9fafb;
+  padding:1%;
 }
 
 #container {
-  width:680px;
+  width:750px;
 }
 
 #specTemplate {
@@ -133,17 +132,17 @@ span.edit {
 }
 
 #rightNav {
-  float:right;
 }
 
 #spec {
-  float:left;
-  
+  float:right;
+  clear:both; 
+  width: 470px;
 }
 
 #controls {
   box-shadow:0 1px 2px 0 rgba(0,0,0,0.1);
-  float:right;
+  float:left;
   position: relative;
   /*bottom: 50px;*/
   color:#747d94;
@@ -208,6 +207,7 @@ span.edit {
       {{> rightNav}}
     </script>
 
+<!-- Control panel code -->
     <script id="rightNav" type="text/ractive">
       <div id="controls">
         <select value="{{workingSpec}}">
@@ -231,26 +231,7 @@ span.edit {
       </div>
     </script>
 
-    <script id="specTemplate" type="text/ractive">
-      <div id="spec">
-        {{#with workingSpec}}
-      
-        {{#if edit}}{{> newEvent}}{{/if}}
-
-      <div id="specItems">
-        {{#each .events:i}}
-          <div class="specItem">
-              <div class="eventName">{{.name}}</div>
-                {{#each .properties}}
-              <div class="propertyName">{{.}}</div>
-            {{/each}}
-          </div>
-        {{/each}}
-        </div>
-        {{/with}}
-      </div>
-    </script>
-
+<!-- New event form code -->
     <script id="newEvent" type="text/ractive">
       <div id="newEvent">
         <div class="formWrapper left clear">
@@ -271,6 +252,27 @@ span.edit {
           {{/each}}
           <input class="" type="button" value="Add property" on-click="addNewProp(newProp)">
         </div>
+      </div>
+    </script>
+
+<!-- Spec stuff -->
+    <script id="specTemplate" type="text/ractive">
+      <div id="spec">
+        {{#with workingSpec}}
+      
+        {{#if edit}}{{> newEvent}}{{/if}}
+
+      <div id="specItems">
+        {{#each .events:i}}
+          <div class="specItem">
+              <div class="eventName">{{.name}}</div>
+                {{#each .properties}}
+              <div class="propertyName">{{.}}</div>
+            {{/each}}
+          </div>
+        {{/each}}
+        </div>
+        {{/with}}
       </div>
     </script>
 
