@@ -17,6 +17,7 @@
 }
 
 .formWrapper input {
+  padding:0;
   height:18px;
   margin-bottom: 5px;
   text-align: center;
@@ -120,10 +121,11 @@ span.edit {
   display:inline-block;
   width:100%;
   padding:1%;
+  box-shadow: 0 1px 0 0 rgba(0,0,0,0.05);
 }
 
 #container {
-  width:750px;
+  width:760px;
 }
 
 #specTemplate {
@@ -246,10 +248,10 @@ span.edit {
           <div class="formTitle center">
             Properties
           </div>
-          <label><input class="" type="text" value="{{newProp}}" placeholder="Property"></label>
           {{#each newEvent.properties}}
             <input class="" type="text" value="{{.}}" placeholder="Property name">
           {{/each}}
+          <label><input class="" type="text" value="{{newProp}}" placeholder="Property"></label>
           <input class="" type="button" value="Add property" on-click="addNewProp(newProp)">
         </div>
       </div>
