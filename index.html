@@ -453,7 +453,13 @@ span.edit {
         submitEventEdit: function ( keypath, eventName ) {
           console.log( keypath, eventName);
           ractive.set(keypath + ".name", eventName)
-          ractive.set(keypath + ".edit", false)
+          ractive.set(keypath + ".editing", false)
+        },
+        submitPropertyEdit: function( keypath, propName ) {
+          console.log( 'prop edit', keypath, propName );
+          ractive.set( keypath + ".name", propName );
+          ractive.set( keypath + ".editing", false );
+          console.log( ractive.get( keypath + ".editing" ) )
         }
       });
 /*
