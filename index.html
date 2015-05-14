@@ -269,9 +269,9 @@ span.edit {
           <div class="edit-container">
             <input
               decorator='select'
-              class='edit'
+              class='event edit'
               value="{{.name}}"
-              on-blur-change="submitEventChange(event, i)"
+              on-blur-change="submitEventEdit( event.keypath, .name)"
             >
           </div>
           {{/if}}
@@ -284,7 +284,7 @@ span.edit {
                 decorator='select'
                 class='edit'
                 value="{{.name}}"
-                on-blur-change="submitPropertyChange(event, j)"
+                on-blur-change="submitPropertyEdit(event, j)"
               >
             {{/if}}
             {{/each}}
@@ -449,7 +449,12 @@ span.edit {
         makeEditable: function ( keypath ) {
           console.log(keypath)
           ractive.set(keypath + ".editing", true) 
-        } 
+        },
+        submitEventEdit: function ( keypath, eventName ) {
+          console.log( keypath, eventName);
+          ractive.set(keypath + ".name", eventName)
+          ractive.set(keypath + ".edit", false)
+        }
       });
 /*
       ractive.on( 'addNewEvent', function ( event ) {
