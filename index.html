@@ -144,7 +144,6 @@ span.edit {
 
 #controls {
   box-shadow:0 1px 2px 0 rgba(0,0,0,0.1);
-  float:left;
   position: relative;
   /*bottom: 50px;*/
   color:#747d94;
@@ -156,6 +155,48 @@ span.edit {
   border:1px solid #cbcfd9;
   width:240px;
   text-align: center;
+}
+
+.row {
+  width: 80%;
+  float: left;
+}
+
+.initial.right {
+  float: right;
+}
+
+.initial.left {
+  float: left;
+}
+
+#rightNav {
+  float: right;
+}
+
+#initialize {
+  box-shadow:0 1px 2px 0 rgba(0,0,0,0.1);
+  position: relative;
+  /*bottom: 50px;*/
+  color:#747d94;
+  border-radius:5px;
+  font-weight:bold;
+  padding:15px;
+  background-color:#f9fafb;
+  text-transform:uppercase;
+  border:1px solid #cbcfd9;
+  width:80%;
+  text-align: center;
+  margin-left: 20%;
+}
+
+#hint {
+  text-align: center;
+}
+
+#createSpec {
+  display: block;
+  margin: 0 auto;
 }
 
 </style>
@@ -178,27 +219,37 @@ span.edit {
       {{#if token == ""}}
         {{> initialize}}
       {{else}} 
+      <div id="table">
+        <div id="specArea">
+          <div class="row">
+            <div class="column left">Events</div>
+            <div class="column right">Properties</div>
+          </div>
+        </div>
         {{> specTemplate}}
+        <div id="rightNav">
         {{> rightNav}}
+        </div>
+      </div>
       {{/if}}
     </script>
 
     <script id="initialize" type="text/ractive">
-      <div>
-          <table>
-            <tr><td>
-              Enter your project token:
-            </td><td>
-              <div><input type="text" value="{{initialToken}}" placeholder="From your Account settings page"></div>
-            </td></tr>
-            <div><p>Hint: this projects token is 8950dac216646efa64092d982b5403ba</p></div>
-            <tr><td>
-              And your name:
-            </td><td>
-              <label><input type="text" value="{{author}}" placeholder="Satchmo B Helpful"></label>
-            </td></tr>
-          </table>
-          <input type="button" value="Create a Spec" on-click="setToken(initialToken)">
+      <div id="initialize">
+        <div class="row">
+          <div class="initial left">Enter your project token: </div>
+          <div class="initial right"><input type="text" value="{{initialToken}}" placeholder="From your Account settings page"></div>
+        </div>
+        <div class="row">
+          <div id="hint">Hint: this projects token is 8950dac216646efa64092d982b5403ba</div>
+        </div>
+        <div class="row">
+          <div class="initial left">And your name:</div>
+          <div class="initial right"><input type="text" value="{{author}}" placeholder="Satchmo B Helpful"></div>
+        </div>
+        <div class="row">
+          <input id="createSpec" type="button" value="Create a Spec" on-click="setToken(initialToken)">
+        </div>
       </div>
     </script>
 
@@ -231,23 +282,18 @@ span.edit {
 
     <!-- New event form code -->
     <script id="newEvent" type="text/ractive">
-      <div id="newEvent">
-        <div class="formWrapper left clear">
-          <div class="formTitle center">
-            Events
-          </div>
+      <div id="newEvent" class="row">
+        <div class="name">
           <input class="" type="text" value="{{newEvent.name}}" placeholder="Event name">
+          <input type="textarea" value="{{newEvent.description}}" placeholder="Triggered when...">
           <input class="" type="button" on-click="addNewEvent( newEvent )"  value="Add to spec">
         </div>
 
-        <div class="formWrapper right">
-          <div class="formTitle center">
-            Properties
-          </div>
+        <div class="properties">
           {{#each newEvent.properties}}
-            <input class="" type="text" value="{{.name}}" placeholder="Property name">
+          <input class="" type="text" value="{{.name}}" placeholder="Property name">
           {{/each}}
-          <label><input class="" type="text" value="{{newProp.name}}" placeholder="Property" on-change="addNewProp(newProp)"></label>
+          <input class="" type="text" value="{{newProp.name}}" placeholder="Property" on-change="addNewProp(newProp)">
           <input class="" type="button" value="Add property" on-click="addNewProp(newProp)">
         </div>
       </div>
@@ -485,7 +531,7 @@ span.edit {
       var setUrl = proto + "//api.mixpanel.com/engage";
       var getUrl = proto + "//mixpanel.com/api/2.0/engage";
 
-      var distinct = "SPEC_USER";
+      var distinct = "SPECR_USER";
 
       //A user must first input this project's token which will create the profile/database
       //setToken = function(projectToken) {
