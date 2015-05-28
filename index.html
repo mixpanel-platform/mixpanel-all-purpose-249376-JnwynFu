@@ -144,7 +144,7 @@ span.edit {
 
 #controls {
   box-shadow:0 1px 2px 0 rgba(0,0,0,0.1);
-  float:left;
+  float:right;
   position: relative;
   /*bottom: 50px;*/
   color:#747d94;
@@ -189,16 +189,16 @@ span.edit {
             <tr><td>
               Enter your project token:
             </td><td>
-              <div><input type="text" value="{{initialToken}}" placeholder="From your Account settings page"></div>
+              <div><input type="text" value="{{ initialToken }}" placeholder="From your Account settings page"></div>
             </td></tr>
             <div><p>Hint: this projects token is 8950dac216646efa64092d982b5403ba</p></div>
             <tr><td>
               And your name:
             </td><td>
-              <label><input type="text" value="{{author}}" placeholder="Satchmo B Helpful"></label>
+              <label><input type="text" value="{{ tempAuthor }}" placeholder="Satchmo B Helpful" on-change="saveAuthor( tempAuthor )"></label>
             </td></tr>
           </table>
-          <input type="button" value="Create a Spec" on-click="setToken(initialToken)">
+          <input type="button" value="Create a Spec" on-click="setToken( initialToken )">
       </div>
     </script>
 
@@ -208,14 +208,13 @@ span.edit {
         <div id="MPselector">
         </div>
         <select on-change="switchSpec( event )">
-          {{#each allSpecs:k}}
-          <option value={{k}}>{{ formattedSpecName( this ) }}</option>
+          {{#each specItems:index}}
+          <option value={{ index }}>{{ label }}</option>
           {{/each}}
         </select>
         {{#if author === ""}}
         <div>
-          <input type="text" value="{{inputAuthor}}" lazy>
-          <input type="button" on-click="newSpec( inputAuthor )" value="Save">>
+          <input type="text" value="{{ tempAuthor }}" on-change="saveAuthor( tempAuthor )">
         </div>
         {{/if}}
         <p>The selected spec was created on <span class="date">{{workingSpec.timestamp}}.</span></p>
@@ -307,37 +306,36 @@ span.edit {
           author: "",
           edit: false,
           newEvent: { name: "", editing: false, properties: [] },
-          newProp: { name: "", editing: false, type:"" },
+          newProp: { name: "", editing: false, type: "string" },
           formattedSpecName: function ( specItem ) {
             return moment(specItem.timestamp).format("MMMM Do @ h:mm") + " by " + specItem.user
           }
         },
-        newSpec: function( author ) {
-          console.log('current author before set', this.get('author'));
-          ractive.set( 'author', author );
-          localStorage.setItem( 'author', author );
-          ractive.set('edit', true);
-          workingSpec = {
-            'user': author,
+
+        saveAuthor: function( author ) {
+          localStorage.setItem( 'author', author )
+          ractive.set( 'author', author )
+        },
+
+        newSpec: function() {
+          console.log('Creating a blank spec')
+          ractive.set( 'edit', true )
+          ractive.set( 'workingSpec', {
+            'user': ractive.get( 'author' ),
             'timestamp': new Date(),
             'events': []
-            }
-          return Promise.all([
-            this.set( 'workingSpec', workingSpec ),
-            this.push( 'allSpecs', workingSpec )
-          ])
+          })
         },
+        
         setToken: function( token ) {
           set(
             data = { 'token': token },
             token = token
           ); // add token to the user
-          this.newSpec( this.get( 'author' )).then(function() {
-            setTimeout(function() { 
-              initialize()
-            }, 2000);
-          });
+          ractive.set( 'token', token )
+          ractive.newSpec()
         },
+        
         saveSpec: function() {
           console.log('saving', this.get( 'workingSpec' ) );
           //sanitize the spec object
@@ -349,7 +347,7 @@ span.edit {
             tempProps = []
             $.each(event.properties, function(index, prop) {
               console.log('each prop', prop)
-              tempProps.push({ 'name': prop.name, type: prop.type })
+              tempProps.push({ 'name': prop.name, 'type': prop.type })
             })
             tempEvents.push({ name: event.name, properties: tempProps })
           })
@@ -360,17 +358,20 @@ span.edit {
             'events': tempEvents
           });
           console.log('wSpec', wSpec)
+          /*
           newSpec = $.extend({},{
               'user': this.get( 'author' ),
               'timestamp': new Date()
             }
-          );
+          ); don't think this is actually needed...
+          */
           append(
             data = { 'spec': wSpec },
             token = this.get( 'token' )
           );
           ractive.push( 'allSpecs', wSpec );
         },
+        
         addNewEvent: function ( eventObj ) {
           console.log( 'new event', eventObj);
           console.log( 'eventObj', eventObj.name, eventObj.properties)
@@ -382,19 +383,25 @@ span.edit {
             ractive.set('newEvent', { name: "", editing: false, properties: [] });
           });
         },
+        
         addNewProp: function( prop ) {
           console.log('new prop', prop);
           ractive.push( 'newEvent.properties', prop);
-          ractive.set( 'newProp', { 'name': '', editing: false, type: ""} );
+          ractive.set( 'newProp', { 'name': '', editing: false, type: ''} );
         },  
+        
         filters: {
           user: function ( specItem ) { return specItem.user === ractive.get('selectedUser') },
           author: function( specItem ) { return specItem.user === ractive.get('author') }
         },
+        
         computed: {
           specItems: function() {
             aS = ractive.get('allSpecs')
-            optionsArray = [];
+            optionsArray = [{
+              'value': ractive.get( 'workingSpec' ),
+              'label': 'Current Edit'
+            }];
             for (i=0; i < aS.length; i++) {
               temp = { 'value': aS[i], 'label': this.get('formattedSpecName')(aS[i])}
               optionsArray.push(temp)
@@ -402,11 +409,13 @@ span.edit {
             return optionsArray
           }
         },
+        
         switchSpec: function( event ) {
-          console.log( 'switch event', event.node.value )
+          console.log( 'switch event', event )
           index = parseInt(event.node.value)
           ractive.makeWorking( ractive.get( 'allSpecs' )[index] )
         },
+        
         decorators: {
           select: function ( node ) {
             setTimeout( function () {
@@ -419,6 +428,7 @@ span.edit {
             };
           }
         },
+        
         makeWorking: function( specItem ) {
           console.log('spec item', specItem)
           tempEvents = []
@@ -444,16 +454,33 @@ span.edit {
               'timestamp': new Date(),
               'events': tempEvents
             })
-          )
+          );
+          ractive.checkSpec();
         },
+
+        checkSpec: function() {
+          spec = ractive.get('workingSpec.events')
+          $.each( spec , function ( index, eventInfo ) {
+            function output(j, input) {console.log('checkSpec', j, input)}(index, eventInfo) 
+          })
+        },
+        
         makeEditable: function ( keypath ) {
           console.log(keypath)
           ractive.set(keypath + ".editing", true) 
         },
+        
         submitEventEdit: function ( keypath, eventName ) {
           console.log( keypath, eventName);
           ractive.set(keypath + ".name", eventName)
           ractive.set(keypath + ".edit", false)
+        },
+        
+        checkSpec: function ( ) {
+          console.log( ractive.get( 'workingSpec' ) )
+          $.each(ractive.get( 'workingSpec.events' ), function( index, eventInfo ) {
+            console.log( 'spec info', index, eventInfo )
+          });
         }
       });
 /*
@@ -468,7 +495,6 @@ span.edit {
         localStorage = window.localStorage;
       } catch (err) {}
 
-      var author = ''
       if (localStorage) {
         author = localStorage.getItem('author') || ''
       }
@@ -546,14 +572,11 @@ span.edit {
               ractive.set('allSpecs', returnedSpec);
               ractive.makeWorking(returnedSpec[0]);
             } else { //prompt the user to make a new spec
-              ractive.newSpec( ractive.get( 'author' ) );
+              ractive.newSpec();
               return;
             }
           } else {
             ractive.set('token', '');
-            if (!suppress_warning) {
-              alert('please re-enter your token');
-            }
           }
         });
       }
